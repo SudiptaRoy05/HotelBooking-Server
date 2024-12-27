@@ -11,7 +11,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lue0n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -38,10 +38,9 @@ async function run() {
 
         app.get('/top-rooms', async (req, res) => {
             try {
-                // Retrieve all rooms
+
                 const rooms = await roomCollection.find().toArray();
 
-                // Calculate average rating for each room
                 const roomsWithAvgRatings = rooms.map(room => {
                     const reviews = room.review || [];
                     const avgRating = reviews.length > 0
@@ -49,20 +48,24 @@ async function run() {
                         : 0;
                     return { ...room, avgRating };
                 });
-
-                // Sort rooms by average rating in descending order and get the top 6
                 const topRatedRooms = roomsWithAvgRatings
                     .sort((a, b) => b.avgRating - a.avgRating)
                     .slice(0, 6);
 
-                // Send the top-rated rooms as response
                 res.send(topRatedRooms);
-                console.log(topRatedRooms);
+
             } catch (error) {
                 console.error('Error retrieving rooms:', error);
                 res.status(500).send({ message: 'Failed to retrieve rooms' });
             }
         });
+
+        app.get(`/room-details/:id`, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await roomCollection.findOne(query);
+            res.send(result);
+        })
 
         app.post('/add-rooms', async (req, res) => {
             const roomData = req.body;
