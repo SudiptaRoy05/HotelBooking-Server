@@ -28,6 +28,7 @@ async function run() {
 
         const database = client.db('hotelBooking');
         const roomCollection = database.collection('roomCollection');
+        const reviewCollection = database.collection('reviewCollection')
 
 
         app.get('/rooms', async (req, res) => {
@@ -60,12 +61,30 @@ async function run() {
             }
         });
 
-        app.get(`/room-details/:id`, async (req, res) => {
+        app.get('/room-details/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await roomCollection.findOne(query);
             res.send(result);
         })
+
+        // review post api 
+        app.post('/add-review/:id', async (req, res) => {
+            const review = req.body
+            const result = await reviewCollection.insertOne(review);
+            res.send(result)
+        })
+
+        app.get('/review/:id', async (req, res) => {
+
+            const id = req.params.id;
+            const query = { roomId: id }
+            // console.log({ roomId })
+            console.log(query)
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result);
+        });
+
 
         app.post('/add-rooms', async (req, res) => {
             const roomData = req.body;
