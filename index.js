@@ -29,6 +29,7 @@ async function run() {
         const database = client.db('hotelBooking');
         const roomCollection = database.collection('roomCollection');
         const reviewCollection = database.collection('reviewCollection')
+        const bookingCollection = database.collection('bookingCollection');
 
 
         app.get('/rooms', async (req, res) => {
@@ -90,7 +91,14 @@ async function run() {
             const roomData = req.body;
             const result = await roomCollection.insertOne(roomData);
             res.send(result)
-            console.log(result)
+        })
+
+
+        // booking post api 
+        app.post('/add-booking', async (req, res) => {
+            const bookingData = req.body;
+            const result = await bookingCollection.insertOne(bookingData);
+            res.send(result);
         })
 
     } finally {
