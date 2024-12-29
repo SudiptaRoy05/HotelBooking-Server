@@ -94,15 +94,16 @@ async function run() {
         })
 
         app.patch('/add-rooms/:id', async (req, res) => {
+            const roomId = req.params.id;
             const { status } = req.body;
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) }
+            const filter = { _id: roomId }
             const update = {
                 $set: { status: status }
             }
 
             const result = await roomCollection.updateOne(filter, update);
             res.send(result)
+            console.log({ roomId, filter, update, result })
 
         })
 
