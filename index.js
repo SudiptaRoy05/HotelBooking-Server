@@ -93,7 +93,26 @@ async function run() {
             res.send(result)
         })
 
+        app.patch('/add-rooms/:id', async (req, res) => {
+            const { status } = req.body;
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const update = {
+                $set: { status: status }
+            }
 
+            const result = await roomCollection.updateOne(filter, update);
+            res.send(result)
+
+        })
+
+
+        app.get('/my-booking/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const result = await bookingCollection.find(query).toArray();
+            res.send(result);
+        })
         // booking post api 
         app.post('/add-booking', async (req, res) => {
             const bookingData = req.body;
