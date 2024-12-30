@@ -80,6 +80,16 @@ async function run() {
         })
 
         // review post api 
+
+        app.get('/all-review', async (req, res) => {
+            try {
+                const result = await reviewCollection.find().sort({ timestamp: -1 }).toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: 'Failed to fetch reviews', error });
+            }
+        });
+
         app.post('/add-review/:id', async (req, res) => {
             const review = req.body
             const result = await reviewCollection.insertOne(review);
