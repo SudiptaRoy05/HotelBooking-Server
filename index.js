@@ -96,6 +96,10 @@ async function run() {
             res.send(result)
         })
 
+        // app.patch(`/update-date/:id`, async(req, res)=>{
+
+        // })
+
         app.get('/review/:id', async (req, res) => {
 
             const id = req.params.id;
@@ -116,7 +120,7 @@ async function run() {
         app.patch('/add-rooms/:id', async (req, res) => {
             const roomId = req.params.id;
             const { status } = req.body;
-            const filter = { _id: roomId }
+            const filter = { _id: new ObjectId(roomId) }
             const update = {
                 $set: { status: status }
             }
