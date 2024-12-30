@@ -32,11 +32,21 @@ async function run() {
         const bookingCollection = database.collection('bookingCollection');
 
 
-        app.get('/rooms', async (req, res) => {
-            const result = await roomCollection.find().toArray();
-            res.send(result)
-            console.log(result)
-        })
+        app.get("/rooms", async (req, res) => {
+            const { minPrice, maxPrice } = req.query;
+
+            const filter = {};
+            if (minPrice) filter.price = { $gte: parseInt(minPrice) };
+            if (maxPrice) filter.price = { ...filter.price, $lte: parseInt(maxPrice) };
+
+            try {
+                const rooms = await roomCollection.find(filter).toArray();
+                res.send(rooms);
+            } catch (error) {
+                res.status(500).send({ message: "Error fetching rooms", error });
+            }
+        });
+
 
         app.get('/top-rooms', async (req, res) => {
             try {
