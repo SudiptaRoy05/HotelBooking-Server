@@ -10,13 +10,14 @@ const port = process.env.PORT || 5000
 const app = express()
 
 const corsOptions = {
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173', 'https://book-your-hotel-18c2b.web.app', 'https://book-your-hotel-18c2b.firebaseapp.com'],
     credentials: true,
-    optionalSuccessStatus: 200
-}
+    optionalSuccessStatus: 200,
+};
 
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(cookieParser());
 
 
 
@@ -80,7 +81,7 @@ async function run() {
         })
 
 
-        app.get("/rooms",verifyToken, async (req, res) => {
+        app.get("/rooms", verifyToken, async (req, res) => {
             const { minPrice, maxPrice } = req.query;
 
             const filter = {};
@@ -120,7 +121,7 @@ async function run() {
             }
         });
 
-        app.get('/room-details/:id',verifyToken, async (req, res) => {
+        app.get('/room-details/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await roomCollection.findOne(query);
@@ -138,14 +139,14 @@ async function run() {
             }
         });
 
-        app.post('/add-review/:id',verifyToken, async (req, res) => {
+        app.post('/add-review/:id', verifyToken, async (req, res) => {
             const review = req.body
             const result = await reviewCollection.insertOne(review);
             res.send(result)
         })
 
 
-        app.patch('/update-date/:id',verifyToken, async (req, res) => {
+        app.patch('/update-date/:id', verifyToken, async (req, res) => {
             const bookingId = req.params.id;
             const { bookingDate } = req.body;
 
@@ -172,13 +173,13 @@ async function run() {
         });
 
 
-        app.post('/add-rooms',verifyToken, async (req, res) => {
+        app.post('/add-rooms', verifyToken, async (req, res) => {
             const roomData = req.body;
             const result = await roomCollection.insertOne(roomData);
             res.send(result)
         })
 
-        app.patch('/add-rooms/:id',verifyToken, async (req, res) => {
+        app.patch('/add-rooms/:id', verifyToken, async (req, res) => {
             const roomId = req.params.id;
             const { status } = req.body;
             const filter = { _id: new ObjectId(roomId) }
@@ -193,20 +194,20 @@ async function run() {
         })
 
 
-        app.get('/my-booking/:email',verifyToken, async (req, res) => {
+        app.get('/my-booking/:email', verifyToken, async (req, res) => {
             const email = req.params.email
             const query = { email: email }
             const result = await bookingCollection.find(query).toArray();
             res.send(result);
         })
         // booking post api 
-        app.post('/add-booking',verifyToken, async (req, res) => {
+        app.post('/add-booking', verifyToken, async (req, res) => {
             const bookingData = req.body;
             const result = await bookingCollection.insertOne(bookingData);
             res.send(result);
         })
 
-        app.delete('/cancle-booking/:id',verifyToken, async (req, res) => {
+        app.delete('/cancle-booking/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await bookingCollection.deleteOne(query);
