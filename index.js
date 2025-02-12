@@ -10,9 +10,14 @@ const port = process.env.PORT || 5000
 const app = express()
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'https://book-your-hotel-18c2b.web.app', 'https://book-your-hotel-18c2b.firebaseapp.com'],
-    credentials: true,
-    optionalSuccessStatus: 200,
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://hotel-california-b98c7.web.app'
+    ],
+    credentials: true, // Allow cookies
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow these HTTP methods
+    // allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
 };
 
 app.use(cors(corsOptions))
@@ -55,6 +60,7 @@ async function run() {
         const roomCollection = database.collection('roomCollection');
         const reviewCollection = database.collection('reviewCollection')
         const bookingCollection = database.collection('bookingCollection');
+        const blogCollection = database.collection('blogCollection');
 
 
         // generate jwt 
@@ -62,11 +68,11 @@ async function run() {
             const email = req.body;
 
             const token = jwt.sign(email, process.env.SECRET_KEY, { expiresIn: '365d' })
-            console.log(token)
+
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'node' : 'strict',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
             }).send({ success: true })
         })
 
@@ -211,6 +217,22 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await bookingCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.get('/blogs', async (req, res) => {
+            const result = await blogCollection.find().toArray();
+            res.send(result);
+        })
+        app.post('/add-blogs', async (req, res) => {
+            const blogs = req.body
+            const result = await blogCollection.insertOne(blogs);
+            res.send(result);
+        })
+        app.get('/blog/details/:id', async (req, res) => {
+            const id = req.params;
+            const query = { _id: new ObjectId(id) }
+            const result = await blogCollection.findOne(query)
             res.send(result);
         })
 
